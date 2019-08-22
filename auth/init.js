@@ -1,24 +1,24 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 
-const user = {
-    username: 'user',
-    password: 'password',
-}
+const user = require('./user')
 
 passport.use(new LocalStrategy(
     function(username, password, done) {
-        findUser(username, function (err, user) {
-            if (err) {
-                return done(err)
-            }
-            if (!user) {
-                return done(null, false)
+            if (username !== user.username) {
+                return done(null, false, { message: 'Invalid username or password' })
             }
             if (password !== user.password ) {
-                return done(null, false)
+                return done(null, false, { message: 'Invalid username or password' })
             }
-            return done(null, user)
-        })
+            return done(null, username)
     }
 ))
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+  });
+  
+passport.deserializeUser(function(user, done) {
+    done(null, user);
+  });

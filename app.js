@@ -4,7 +4,8 @@ var favicon = require('static-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-const passport = require('passport')
+const passport = require('passport');
+const flash = require('connect-flash');
 
 var routes = require('./routes/index');
 
@@ -14,17 +15,26 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(favicon());
-app.use(logger('dev'));
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.use('/', routes);
+app.use(require('express-session')({
+    secret: 'keyboard cat',
+    resave: true,
+    saveUninitialized: true
+  }));
+app.use(flash());
 app.use(passport.initialize())
 app.use(passport.session())
 require('./auth/init')
+
+app.use(favicon());
+app.use(logger('dev'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+
+app.use('/', routes);
+
 
 
 /// catch 404 and forwarding to error handler
@@ -33,6 +43,9 @@ app.use(function(req, res, next) {
     err.status = 404;
     next(err);
 });
+
+
+
 
 
 
